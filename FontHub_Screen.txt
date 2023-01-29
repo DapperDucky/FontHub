@@ -1,0 +1,220 @@
+if not init then
+    init = true
+    HeaderText = "FONT HUB"
+    
+    -- Objects
+    Mouse = {}
+    function GetMouse()
+        local mx, my = getCursor()
+        Mouse = {x = mx, y = my, Down = getCursorDown(), Release = getCursorReleased(), DownCount = Ternary(Mouse.DownCount ~= nil, Mouse.DownCount, 0)}
+    end
+    
+    Screen = nil
+    function GetScreen()
+        local s = {}
+        local x, y = getResolution()
+        s.Width = x
+        s.Height = y
+        s.HalfWidth = math.floor(x/2)
+        s.HalfHeight = math.floor(y/2)
+        s.ThirdWidth = math.floor(x/3)
+        s.ThirdHeight = math.floor(y/3)
+        s.HeaderWidth = 1050
+        s.HeaderHeight = 52
+        s.InfoWidth = math.floor(math.floor(x*0.36)*0.62)
+        s.InfoHeight = y
+        s.HalfInfoWidth = math.floor(math.floor(math.floor(x*0.38)*0.62)/2)
+        s.HalfInfoHeight = math.floor(y/2)
+        s.ContentWidth = x - math.floor(math.floor(x*0.38)*0.62)
+        s.ContentHeight = y
+        s.HalfContentWidth = math.floor((x - math.floor(math.floor(x*0.38)*0.62))/2)
+        s.HalfContentHeight = math.floor(y/2)
+        Screen = s
+    end
+    
+    -- Fonts
+    Fonts = {}
+    Fonts[#Fonts+1] = {Name = "BankGothic"}
+    Fonts[#Fonts+1] = {Name = "BankGothic-Light"}
+    Fonts[#Fonts+1] = {Name = "BankGothic-Medium"}
+    Fonts[#Fonts+1] = {Name = "DatDot"}
+    Fonts[#Fonts+1] = {Name = "DatDot-Light"}
+    Fonts[#Fonts+1] = {Name = "DatDot-Bold"}
+    Fonts[#Fonts+1] = {Name = "Dosis"}
+    Fonts[#Fonts+1] = {Name = "Dosis-Light"}
+    Fonts[#Fonts+1] = {Name = "Dosis-Bold"}
+    Fonts[#Fonts+1] = {Name = "E1234"}
+    Fonts[#Fonts+1] = {Name = "FiraMono"}
+    Fonts[#Fonts+1] = {Name = "FiraMono-Bold"}
+    Fonts[#Fonts+1] = {Name = "HelpMe"}
+    Fonts[#Fonts+1] = {Name = "Indoscreen"}
+    Fonts[#Fonts+1] = {Name = "LinuxLibertine"}
+    Fonts[#Fonts+1] = {Name = "LinuxLibertine-Bold"}
+    Fonts[#Fonts+1] = {Name = "LinuxLibertine-Italic"}
+    Fonts[#Fonts+1] = {Name = "Montserrat"}
+    Fonts[#Fonts+1] = {Name = "Montserrat-Thin"}
+    Fonts[#Fonts+1] = {Name = "Montserrat-Light"}
+    Fonts[#Fonts+1] = {Name = "Montserrat-ExtraLight"}
+    Fonts[#Fonts+1] = {Name = "Montserrat-ExtraLightItalic"}
+    Fonts[#Fonts+1] = {Name = "Montserrat-Bold"}
+    Fonts[#Fonts+1] = {Name = "Montserrat-SemiBold"}
+    Fonts[#Fonts+1] = {Name = "Montserrat-BoldItalic"}
+    Fonts[#Fonts+1] = {Name = "Ontel"}
+    Fonts[#Fonts+1] = {Name = "Oxanium"}
+    Fonts[#Fonts+1] = {Name = "Oxanium-Light"}
+    Fonts[#Fonts+1] = {Name = "Oxanium-Medium"}
+    Fonts[#Fonts+1] = {Name = "Oxanium-Bold"}
+    Fonts[#Fonts+1] = {Name = "Play"}
+    Fonts[#Fonts+1] = {Name = "Play-Bold"}
+    Fonts[#Fonts+1] = {Name = "RefrigeratorDeluxe"}
+    Fonts[#Fonts+1] = {Name = "RefrigeratorDeluxe-Light"}
+    Fonts[#Fonts+1] = {Name = "RobotoCondensed"}
+    Fonts[#Fonts+1] = {Name = "RobotoMono"}
+    Fonts[#Fonts+1] = {Name = "RobotoMono-Bold"}
+    Fonts[#Fonts+1] = {Name = "TurretRoad"}
+    Fonts[#Fonts+1] = {Name = "TurretRoad-Light"}
+    Fonts[#Fonts+1] = {Name = "TurretRoad-Medium"}
+    Fonts[#Fonts+1] = {Name = "TurretRoad-Bold"}
+    
+    -- Font Setting
+    FontSettings = {}
+    FontSettings.Color = {r = 1.0, g = 1.0, b = 0.2, o = 1.0}
+    FontSettings.Size = 60
+    
+    -- Helper Fields
+    CurrentFontIndex = 1
+
+     -- Functions
+    function Ternary(condition,x,y) if condition then return x else return y end end
+    function ToColor(w,x,y,z) return {r = w, g = x, b = y, o = z} end
+    function GetPerc(x,y) return math.floor((x/y)*100) end
+    function GetPercNum(x,y) return math.floor((x*y)/100) end
+    function NextFont() CurrentFontIndex = Ternary(CurrentFontIndex + 1 > #Fonts, 1, CurrentFontIndex + 1) end
+    function PrevFont() CurrentFontIndex = Ternary(CurrentFontIndex - 1 < 1, #Fonts, CurrentFontIndex - 1) end
+    
+    function DisplayText(layer, fnt, text, x, y, alignH, alignV, color)
+        setNextFillColor(layer, color.r, color.g, color.b, color.o)
+        setNextTextAlign(layer, alignH, alignV)
+        addText(layer, fnt, text, x, y)
+    end
+    
+    function DisplayTextArea(layer, text, x, y, width, maxlength, font, alignH, alignV, color)
+        local length = text:len()
+        color = Ternary(color ~= nil, color, ToColor(.8, .8, .8, 1))
+        
+        if alignH == nil then alignH = AlignH_Left end
+        if alignV == nil then alignV = AlignV_Middle end
+        
+        for i = 1, math.ceil(length/maxlength)+1, 1 do
+            local startindex = (i-1)*maxlength + 1
+            local endindex = i*maxlength
+            local subtext = string.sub(text, startindex, Ternary(endindex <= length, endindex, length))
+            DisplayText(layer, font, subtext, x, y + (20*i), alignH, alignV, color)
+        end
+    end
+    
+    function DisplayBox(layer, x, y, w, h, fill, shadow, blur, round, stroke, strokeWidth)
+        if stroke ~= nil then setNextStrokeColor(layer, stroke.r, stroke.g, stroke.b, stroke.o) end
+        if strokeWidth ~= nil then setNextStrokeWidth(layer, strokeWidth) end
+        if shadow ~= nil then setNextShadow(layer, blur, shadow.r, shadow.g, shadow.b, shadow.o) end
+        if fill ~= nil then setNextFillColor(layer, fill.r, fill.g, fill.b, fill.o) end
+        if round ~= nil then addBoxRounded(layer, x, y, w, h, round) else addBox(layer, x, y, w, h) end
+    end
+    
+    function CreateButton(layer, x, y, width, height, text, value, fontColor, fontColor_Down, backColor, backColor_Down, font, shadow)
+        local down = false
+        local click = false
+        
+        -- Set Defaults
+        if text == nil then text = '' end
+        if value == nil then value = '' end
+        if fontColor_Down == nil then fontColor_Down = fontColor end
+        if backColor_Down == nil then backColor_Down = backColor end
+        
+        -- Look for button events
+        if Mouse.Down and Mouse.x > x and Mouse.x < x + width and Mouse.y > y and Mouse.y < y + height then down = true end
+        if Mouse.Release and Mouse.x > x and Mouse.x < x + width and Mouse.y > y and Mouse.y < y + height then click = true end
+        
+        -- Build the button 
+        DisplayBox(layer, x, y, width, height, Ternary(down,backColor_Down,backColor), shadow, 2, nil, nil, nil)
+        DisplayText(layer, font, text, x + math.floor(width/2), y + math.floor(height/2), AlignH_Center, AlignV_Middle, Ternary(down,fontColor_Down,fontColor))
+        return {Value = value, Down = down, Click = click}
+    end
+    
+    function DisplayCounter(layer, x, y, font, label, text, labelColor)
+        DisplayText(layer, font, label, 15, y + math.floor(26/2), AlignH_Center, AlignV_Middle, labelColor)
+        DisplayText(layer, font, text, Screen.HalfInfoWidth + 10, y + math.floor(26/2), AlignH_Center, AlignV_Middle, ToColor(0.8,0.8,0.8,1.0))
+        DisplayBox(layer, 0, y - 2, Screen.InfoWidth, 30, ToColor(0.05, 0.05, 0.05, 1), nil, nil, nil, nil, nil)
+        DisplayBox(layer, x+20, y , Screen.InfoWidth - (30 + 2), 26, ToColor(0.25, 0.25, 0.25, 1), nil, nil, nil, nil, nil)
+        local down = CreateButton(layer, x+20, y, 60, 26, 'DOWN', 'DOWN', ToColor(.2, .2, .2, 1), ToColor(.1, .1, .1, 1), ToColor(1, 1, 0.2, 1), ToColor(0.6, 0.6, 0.2, 1), font, ToColor(0.0, 0.0, 0.0, 1))
+        local up = CreateButton(layer, Screen.InfoWidth - (60 + 2), y, 60, 26, 'UP', 'UP', ToColor(.2, .2, .2, 1), ToColor(.1, .1, .1, 1), ToColor(1, 1, 0.2, 1), ToColor(0.6, 0.6, 0.2, 1), font, ToColor(0.0, 0.0, 0.0, 1))
+        return {Left = down, Right = up}
+     end
+    
+    function HandleFontSelectionEvent(event, v, min, max, inc)
+        min = Ternary(min ~= nil, min, 0.0)
+        max = Ternary(max ~= nil, max, 1.0)
+        inc = Ternary(inc ~= nil, inc, 0.01)
+        
+        if event.Left.Click then 
+            v = Ternary(v - inc <= min, min, v - inc)
+            Mouse.DownCount = 0
+        elseif event.Right.Click then 
+            v = Ternary(v + inc >= max, max, v + inc)
+            Mouse.DownCount = 0
+        elseif event.Left.Down then 
+            if Mouse.DownCount > 5 then v = Ternary(v - inc <= min, min, v - inc) end
+            Mouse.DownCount = Mouse.DownCount + 1
+        elseif event.Right.Down then
+            if Mouse.DownCount > 5 then v = Ternary(v + inc >= max, max, v + inc) end
+            Mouse.DownCount = Mouse.DownCount + 1
+        end
+        return v
+    end
+  
+    -- These only need called on init
+    GetScreen()
+end
+
+GetMouse()
+
+-- Layers
+local forelayer = createLayer()
+local panellayer = createLayer()
+local backlayer = createLayer()
+local headerfont = loadFont("RefrigeratorDeluxe", 30)
+local font = loadFont("FiraMono-Bold", 20)
+local subfont = loadFont("FiraMono-Bold", 45)
+local selectedfont = loadFont(Fonts[CurrentFontIndex].Name, FontSettings.Size)
+
+
+-- Display the selected font
+DisplayText(forelayer, selectedfont, Fonts[CurrentFontIndex].Name, Screen.HalfWidth + math.floor(Screen.InfoWidth/2), Screen.HalfHeight, AlignH_Center, AlignV_Middle, FontSettings.Color)
+local btnPrev = CreateButton(forelayer, Screen.InfoWidth + 15, Screen.Height - 50, 100, 38, "PREV", "PREV", ToColor(.2, .2, .2, 1), ToColor(.1, .1, .1, 1), ToColor(1, 1, 0.2, 1), ToColor(0.6, 0.6, 0.2, 1), font, ToColor(0.0, 0.0, 0.0, 1))
+local btnNext = CreateButton(forelayer, Screen.Width - 115, Screen.Height - 50, 100, 38, "NEXT", "NEXT", ToColor(.2, .2, .2, 1), ToColor(.1, .1, .1, 1), ToColor(1, 1, 0.2, 1), ToColor(0.6, 0.6, 0.2, 1), font, ToColor(0.0, 0.0, 0.0, 1))
+
+if btnNext.Click then NextFont() end
+if btnPrev.Click then PrevFont() end
+
+
+-- Build Font Selections
+local y = 375
+local rResult = DisplayCounter(backlayer, 10, y, font, 'R', FontSettings.Color.r, ToColor(1.0, 0.2, 0.2, 1.0)); y = y + 34;
+local gResult = DisplayCounter(backlayer, 10, y, font, 'G', FontSettings.Color.g, ToColor(0.2, 1.0, 0.2, 1.0)); y = y + 34;
+local bResult = DisplayCounter(backlayer, 10, y, font, 'B', FontSettings.Color.b, ToColor(0.2, 0.2, 1.0, 1.0)); y = y + 34;
+local oResult = DisplayCounter(backlayer, 10, y, font, '0', FontSettings.Color.o, ToColor(1.0, 1.0, 1.0, 1.0)); y = y + 34;
+local sResult = DisplayCounter(backlayer, 10, y, font, 'S', FontSettings.Size, ToColor(1.0, 1.0, 0.2, 1.0))
+
+FontSettings.Color.r = HandleFontSelectionEvent(rResult, FontSettings.Color.r)
+FontSettings.Color.g = HandleFontSelectionEvent(gResult, FontSettings.Color.g)
+FontSettings.Color.b = HandleFontSelectionEvent(bResult, FontSettings.Color.b)
+FontSettings.Color.o = HandleFontSelectionEvent(oResult, FontSettings.Color.o)
+FontSettings.Size = HandleFontSelectionEvent(sResult, FontSettings.Size, 0, 800, 1)
+
+-- Header and Info
+DisplayBox(panellayer, 0, 0, Screen.InfoWidth, Screen.InfoHeight, ToColor(.3, .3, .3, 1), ToColor(0, 0, 0, 1), 15, nil, nil, nil)
+DisplayBox(backlayer, 0, 0, Screen.HeaderWidth,  Screen.HeaderHeight, ToColor(1, 1, 0.2, 1), ToColor(0, 0, 0, 1), 25, nil, nil, nil)
+DisplayText(backlayer, headerfont, HeaderText, Screen.HalfWidth, 30, AlignH_Center, AlignV_Middle, ToColor(.1, .1, .1, 1))
+setBackgroundColor(.1, .1, .1)
+
+requestAnimationFrame(2)
